@@ -1,0 +1,2 @@
+# SimpleConsoleReader
+Simple console reader!

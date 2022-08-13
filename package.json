@@ -1,0 +1,21 @@
+{
+  "name": "console-reader",
+  "version": "1.0.1",
+  "description": "Simple console reader!",
+  "main": "ConsoleReader.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OguzhanUmutlu/SimpleConsoleReader.git"
+  },
+  "keywords": [],
+  "author": "OguzhanUmutlu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OguzhanUmutlu/SimpleConsoleReader/issues"
+  },
+  "homepage": "https://github.com/OguzhanUmutlu/SimpleConsoleReader#readme",
+  "dependencies": {}
+}

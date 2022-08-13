@@ -1,5 +1,5 @@
 class ConsoleReader {
-    constructor({stdin = process.stdin, stdout = process.stdout}= {}) {
+    constructor({stdin = process.stdin, stdout = process.stdout} = {}) {
         stdin.setRawMode(true);
         this.stdin = stdin;
         this._stdinData = [];
@@ -73,4 +73,5 @@ class ConsoleReader {
         });
     };
 }
+
 module.exports = ConsoleReader;

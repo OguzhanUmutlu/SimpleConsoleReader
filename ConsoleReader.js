@@ -26,7 +26,7 @@ class ConsoleReader {
             let specialName = null;
             let ctrl = false;
             let alt = false;
-            const pc = t => printing = t || buffer.toString();
+            const pc = t => key.printing = t || buffer.toString();
             const sp = t => specialName = t;
             if (length === 1 && buffer[0] === 3) {
                 // CTRL + C
@@ -158,5 +158,7 @@ class ConsoleReader {
 
     input = this.readLine;
 }
+
+ConsoleReader.new = (...args) => new ConsoleReader(...args);
 
 module.exports = ConsoleReader;

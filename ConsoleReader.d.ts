@@ -21,6 +21,7 @@ type HandleEventFunction = (event: HandleEvent) => void;
 
 export default class ConsoleReader {
     static Static: ConsoleReader;
+    static new(options?: Options): ConsoleReader;
 
     constructor(options?: Options);
 

@@ -9,12 +9,12 @@ type SpecialKey = "UpArrow" | "DownArrow" | "RightArrow" | "LeftArrow" | "Backsp
     "Insert" | "Delete" | "End" | "PageUp" | "PageDown" | "NumLock5" | "Escape";
 
 type HandleEvent = {
-    printing: string | null,
-    specialName: SpecialKey | null,
-    buffer: Buffer,
-    ctrl: boolean,
-    alt: boolean,
+    printing: string | null
+    buffer: Buffer
     cancelled: boolean
+    get specialName(): SpecialKey | null
+    get ctrl(): boolean
+    get alt(): boolean
 };
 
 type HandleEventFunction = (event: HandleEvent) => void;

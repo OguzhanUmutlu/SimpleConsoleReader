@@ -23,8 +23,11 @@ class ConsoleReader {
                 cancelled: false,
                 buffer
             };
-            const pc = t => key.printing = t || buffer.toString();
-            const sp = t => key.specialName = t;
+            let specialName = null;
+            let ctrl = false;
+            let alt = false;
+            const pc = t => printing = t || buffer.toString();
+            const sp = t => specialName = t;
             if (length === 1 && buffer[0] === 3) {
                 // CTRL + C
                 process.exit();
@@ -45,11 +48,11 @@ class ConsoleReader {
                 sp("LeftArrow");
             } else if (ch(127)) {
                 // ctrl backspace
-                key.ctrl = true;
+                ctrl = true;
                 sp("Backspace");
             } else if (ch(27, 8)) {
                 // alt backspace
-                key.alt = true;
+                alt = true;
                 sp("Backspace");
             } else if (ch(8)) {
                 // backspace
@@ -88,6 +91,10 @@ class ConsoleReader {
             } else pc();
             this.handlers.forEach((opt, fn) => {
                 if (typeof opt === "object" && opt.once) this.removeHandler(fn);
+                key.specialName = specialName;
+                key.ctrl = ctrl;
+                key.alt = alt;
+                // so they can't overwrite it
                 fn(key);
             });
             if (!key.cancelled && key.printing) process.stdout.write(key.printing);

@@ -1,78 +1,155 @@
 class ConsoleReader {
-    constructor({stdin = process.stdin, stdout = process.stdout} = {}) {
-        stdin.setRawMode(true);
-        this.stdin = stdin;
-        this._stdinData = [];
-    }
+    static Static = new ConsoleReader();
 
-    resumeStdin() {
-        this.stdin.resume();
-    };
-
-    pauseStdin() {
-        this.stdin.pause();
-    }
-
-    onStdinData(callback) {
-        this._stdinData.push(callback);
-        this.stdin.on("data", callback);
-        return {
-            remove: () => {
-                this._stdinData.splice(this._stdinData.indexOf(callback), 1);
-                this.stdin.off("data", callback);
-            }
+    constructor(options) {
+        if (typeof options !== "object" || Array.isArray(options)) options = {};
+        const def = {
+            stdin: process.stdin,
+            stdout: process.stdout
         };
+        Object.keys(def).forEach(i => typeof options[i] !== def[i] ? options[i] = def[i] : null);
+        this.options = options;
+        this.options.stdin.setRawMode(true);
+        this.handlers = new Map;
+        this.options.stdin.on("data", buffer => {
+            const length = buffer.length;
+            const string = [...buffer].map(i => String.fromCharCode(i)).join("");
+            const ch = (...arr) => arr.length === buffer.length && arr.every((i, j) => buffer[j] === i);
+            const key = {
+                printing: null,
+                specialName: null,
+                ctrl: false,
+                alt: false,
+                cancelled: false,
+                buffer
+            };
+            const pc = t => key.printing = t || buffer.toString();
+            const sp = t => key.specialName = t;
+            if (length === 1 && buffer[0] === 3) {
+                // CTRL + C
+                process.exit();
+            } else if (ch(13)) {
+                // line break
+                pc("\n");
+            } else if (ch(27, 91, 65)) {
+                // up arrow
+                sp("UpArrow");
+            } else if (ch(27, 91, 66)) {
+                // down arrow
+                sp("DownArrow");
+            } else if (ch(27, 91, 67)) {
+                // right arrow
+                sp("RightArrow");
+            } else if (ch(27, 91, 68)) {
+                // left arrow
+                sp("LeftArrow");
+            } else if (ch(127)) {
+                // ctrl backspace
+                key.ctrl = true;
+                sp("Backspace");
+            } else if (ch(27, 8)) {
+                // alt backspace
+                key.alt = true;
+                sp("Backspace");
+            } else if (ch(8)) {
+                // backspace
+                pc("\b \b");
+                sp("Backspace");
+            } else if (ch(9)) {
+                // horizontal tab
+                sp("HTab");
+            } else if (ch(11)) {
+                // vertical tab
+                sp("VTab");
+            } else if (ch(27, 91, 49, 126)) {
+                // Home
+                sp("Home");
+            } else if (ch(27, 91, 50, 126)) {
+                // Insert
+                sp("Insert");
+            } else if (ch(27, 91, 51, 126)) {
+                // Delete
+                sp("Delete");
+            } else if (ch(27, 91, 52, 126)) {
+                // End
+                sp("End");
+            } else if (ch(27, 91, 53, 126)) {
+                // Page Up
+                sp("PageUp");
+            } else if (ch(27, 91, 54, 126)) {
+                // Page Down
+                sp("PageDown");
+            } else if (ch(27, 91, 71)) {
+                // Num Lock 5? What does it really do? idk.
+                sp("NumLock5");
+            } else if (ch(27)) {
+                // Escape
+                sp("Escape");
+            } else pc();
+            this.handlers.forEach((opt, fn) => {
+                if (typeof opt === "object" && opt.once) this.removeHandler(fn);
+                fn(key);
+            });
+            if (!key.cancelled && key.printing) process.stdout.write(key.printing);
+        });
     };
 
-    removeStdinCallbacks = () => {
-        this._stdinData.forEach(i => this.stdin.removeListener("data", i));
-        this._stdinData = [];
+    get enabled() {
+        return this.options.stdin.isPaused();
     };
 
-    readLine({show = true, asString = true} = {}) {
-        return new Promise(resolve => {
-            this.resumeStdin();
-            let dat = [];
-            const rem = this.onStdinData(dataB => {
-                const data = dataB.toString();
-                if (data === "\x03") return process.exit();
-                if (data[0] === "\n" || data[0] === "\r") {
-                    this.pauseStdin();
-                    rem.remove();
-                    resolve(asString ? dat.map(i => i.toString()).join("") : dat);
-                } else if (data === "\b") {
-                    if (dat.length > 0) {
-                        dat = dat.substring(0, dat.length - 1);
-                        if (show) process.stdout.write("\b ");
-                    }
-                } else dat.push(dataB);
-                if (show) process.stdout.write(data);
+    set enabled(v) {
+        if (v) this.options.stdin.resume();
+        else this.options.stdin.pause();
+    };
+
+    handle(fn) {
+        this.handlers.set(fn, {once: false});
+        return {remove: () => this.removeHandler(fn)};
+    };
+
+    handleOnce(fn) {
+        this.handlers.set(fn, {once: true});
+        return {remove: () => this.removeHandler(fn)};
+    };
+
+    removeHandler(fn) {
+        this.handlers.delete(fn);
+    };
+
+    readLine({show = true, asString = true, lineBreak = true} = {}) {
+        let res = asString ? "" : [];
+        return new Promise(r => {
+            const h = this.handle(ev => {
+                if (!show) ev.cancelled = true;
+                if (ev.printing === "\n") {
+                    h.remove();
+                    r(res);
+                    if (!lineBreak) ev.cancelled = true;
+                } else {
+                    if (asString) res += ev.printing || "";
+                    else res.push(ev);
+                }
             });
         });
     };
 
     readKey({show = true, amount = 1, asString = true} = {}) {
-        return new Promise(resolve => {
-            this.resumeStdin();
-            let dat = "";
-            const rem = this.onStdinData(dataB => {
-                const data = dataB.toString();
-                if (data === "\x03") return process.exit();
-                if (data === "\b") {
-                    if (dat.length > 0) {
-                        dat = dat.substring(0, dat.length - 1);
-                        if (show) process.stdout.write("\b ");
-                    }
-                } else dat += data;
-                if (dat.length >= amount) {
-                    this.pauseStdin();
-                    rem.remove();
-                    resolve(asString ? data : dataB);
+        let res = asString ? "" : [];
+        return new Promise(r => {
+            const h = this.handle(ev => {
+                if (!show) ev.cancelled = true;
+                if (asString) res += ev.printing || "";
+                else res.push(ev);
+                if (res.length >= amount) {
+                    h.remove();
+                    r(res);
                 }
-                if (show) process.stdout.write(data);
             });
         });
     };
+
+    input = this.readLine;
 }
 
 module.exports = ConsoleReader;

@@ -1,5 +1,8 @@
 const ConsoleReader = require("../ConsoleReader");
-const reader = new ConsoleReader();
-reader.readLine({show: true}).then(line => {
-    console.log("You typed:", line);
-});
+const reader = ConsoleReader.Static;
+(async () => {
+    const number = parseInt(await reader.readKey({show: false}));
+    reader.enabled = false;
+    if(isNaN(number)) return console.log("You didn't enter a number!");
+    console.log("The square of your number is " + number * number)
+})();

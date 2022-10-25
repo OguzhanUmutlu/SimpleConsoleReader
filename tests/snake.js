@@ -1,5 +1,5 @@
 const ConsoleReader = require("../ConsoleReader");
-const reader = new ConsoleReader();
+const reader = ConsoleReader.Static;
 
 (async () => {
     const WAYS = {
@@ -70,18 +70,18 @@ const reader = new ConsoleReader();
     resetGame();
     render();
     const keyHandler = async () => {
-        const key = await reader.readKey({show: false});
-        switch (key) {
-            case "w":
+        const key = await reader.readKey({show: false, asString: false});
+        switch (key[0].specialName) {
+            case "UpArrow":
                 game.way = WAYS.UP;
                 break;
-            case "d":
+            case "RightArrow":
                 game.way = WAYS.RIGHT;
                 break;
-            case "s":
+            case "DownArrow":
                 game.way = WAYS.DOWN;
                 break;
-            case "a":
+            case "LeftArrow":
                 game.way = WAYS.LEFT;
                 break;
         }

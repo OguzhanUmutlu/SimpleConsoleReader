@@ -4,8 +4,7 @@ Simple console reader!
 # Usage
 
 ```js
-const ConsoleReader = require("console-reader");
-const reader = new ConsoleReader();
+const reader = require("console-reader").Static;
 
 reader.readLine().then(message => {
     console.log("You typed: " + message + "!");

@@ -31,8 +31,6 @@ export default class ConsoleReader {
     get enabled(): boolean;
     set enabled(v: boolean);
 
-    get lineBuffers(): Buffer[];
-
     handle(handler: HandleEventFunction): { remove: () => void };
 
     handleOnce(handler: HandleEventFunction): { remove: () => void };

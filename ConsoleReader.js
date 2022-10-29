@@ -33,7 +33,7 @@ class ConsoleReader {
                 process.exit();
             } else if (ch(13)) {
                 pc("\n");
-                lineLen = 0;
+                sp("Enter");
             } else if (ch(27, 91, 65)) {
                 sp("UpArrow");
             } else if (ch(27, 91, 66)) {
@@ -87,6 +87,7 @@ class ConsoleReader {
             if (!key.cancelled && key.printing) {
                 process.stdout.write(key.printing);
                 lineLen++;
+                if (key.printing === "\n") lineLen = 0;
             }
         });
     };

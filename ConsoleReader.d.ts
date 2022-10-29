@@ -6,7 +6,7 @@ type Options = {
 };
 
 type SpecialKey = "UpArrow" | "DownArrow" | "RightArrow" | "LeftArrow" | "Backspace" | "HTab" | "VTab" | "Home" |
-    "Insert" | "Delete" | "End" | "PageUp" | "PageDown" | "NumLock5" | "Escape";
+    "Insert" | "Delete" | "End" | "PageUp" | "PageDown" | "NumLock5" | "Escape" | "Enter";
 
 type HandleEvent = {
     printing: string | null
@@ -21,6 +21,7 @@ type HandleEventFunction = (event: HandleEvent) => void;
 
 export default class ConsoleReader {
     static Static: ConsoleReader;
+
     static new(options?: Options): ConsoleReader;
 
     constructor(options?: Options);

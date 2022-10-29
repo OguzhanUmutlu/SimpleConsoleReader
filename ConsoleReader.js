@@ -12,6 +12,7 @@ class ConsoleReader {
         this.options.stdin.setRawMode(true);
         this.handlers = new Map;
         let lineLen = 0;
+        let lineStr = "";
         this.options.stdin.on("data", buffer => {
             const length = buffer.length;
             //const string = [...buffer].map(i => String.fromCharCode(i)).join("");
@@ -45,6 +46,20 @@ class ConsoleReader {
             } else if (ch(127)) {
                 ctrl = true;
                 sp("Backspace");
+                let amount = -1;
+                let lastReg = null;
+                const lastS = lineStr[lineStr.length - 1];
+                if (lastS === " ") lastReg = / /;
+                else if (/[a-zA-Z]/.test(lastS)) lastReg = /[a-zA-Z]/;
+                if (lastReg) {
+                    for (let i = lineStr.length - 1; i > -1; i--)
+                        if (lastReg.test(lineStr[i])) amount++;
+                } else amount = 1;
+                if (lineLen >= amount && amount) {
+                    pc("\b \b".repeat(amount));
+                    lineLen -= amount + 1;
+                    lineStr = lineStr.substring(0, lineStr.length - amount);
+                } else pc("");
             } else if (ch(27, 8)) {
                 alt = true;
                 sp("Backspace");
@@ -52,6 +67,7 @@ class ConsoleReader {
                 if (lineLen > 0) {
                     pc("\b \b");
                     lineLen -= 2;
+                    lineStr = lineStr.substring(0, lineStr.length - 1);
                 }
                 sp("Backspace");
             } else if (ch(9)) {
@@ -81,13 +97,16 @@ class ConsoleReader {
                 key.specialName = specialName;
                 key.ctrl = ctrl;
                 key.alt = alt;
-                // so they can't overwrite it
                 fn(key);
             });
             if (!key.cancelled && key.printing) {
                 process.stdout.write(key.printing);
                 lineLen++;
-                if (key.printing === "\n") lineLen = 0;
+                if (key.printing === "\n") {
+                    lineLen = 0;
+                    lineStr = "";
+                }
+                if (!specialName) lineStr += key.printing;
             }
         });
     };

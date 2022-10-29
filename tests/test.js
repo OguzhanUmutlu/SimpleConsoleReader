@@ -1,7 +1,6 @@
 const ConsoleReader = require("../ConsoleReader");
 const reader = ConsoleReader.Static;
 (async () => {
-    process.stdout.write("qwewqe")
     const number = parseInt(await reader.readLine({show: true}));
     reader.enabled = false;
     if(isNaN(number)) return console.log("You didn't enter a number!");

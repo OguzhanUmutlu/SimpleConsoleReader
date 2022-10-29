@@ -46,7 +46,7 @@ class ConsoleReader {
             } else if (ch(127)) {
                 ctrl = true;
                 sp("Backspace");
-                let amount = -1;
+                let amount = 0;
                 let lastReg = null;
                 const lastS = lineStr[lineStr.length - 1];
                 if (lastS === " ") lastReg = / /;

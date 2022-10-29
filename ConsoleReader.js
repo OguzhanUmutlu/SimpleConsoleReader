@@ -144,8 +144,11 @@ class ConsoleReader {
                     r(res);
                     if (!lineBreak) ev.cancelled = true;
                 } else {
-                    if (asString) res += ev.printing || "";
-                    else res.push(ev);
+                    if (asString) {
+                        if (ev.printing.includes("\b \b")) {
+                            res = res.substring(0, res.length - ev.printing.split("\b \b").length + 1)
+                        } else res += ev.printing || "";
+                    } else res.push(ev);
                 }
             });
         });
@@ -156,8 +159,11 @@ class ConsoleReader {
         return new Promise(r => {
             const h = this.handle(ev => {
                 if (!show) ev.cancelled = true;
-                if (asString) res += ev.printing || "";
-                else res.push(ev);
+                if (asString) {
+                    if (ev.printing.includes("\b \b")) {
+                        res = res.substring(0, res.length - ev.printing.split("\b \b").length + 1)
+                    } else res += ev.printing || "";
+                } else res.push(ev);
                 if (res.length >= amount) {
                     h.remove();
                     r(res);

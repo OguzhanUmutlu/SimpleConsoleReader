@@ -145,7 +145,7 @@ class ConsoleReader {
                     if (!lineBreak) ev.cancelled = true;
                 } else {
                     if (asString) {
-                        if (ev.printing.includes("\b \b")) {
+                        if ((ev.printing || "").includes("\b \b")) {
                             res = res.substring(0, res.length - ev.printing.split("\b \b").length + 1)
                         } else res += ev.printing || "";
                     } else res.push(ev);
@@ -160,7 +160,7 @@ class ConsoleReader {
             const h = this.handle(ev => {
                 if (!show) ev.cancelled = true;
                 if (asString) {
-                    if (ev.printing.includes("\b \b")) {
+                    if ((ev.printing || "").includes("\b \b")) {
                         res = res.substring(0, res.length - ev.printing.split("\b \b").length + 1)
                     } else res += ev.printing || "";
                 } else res.push(ev);

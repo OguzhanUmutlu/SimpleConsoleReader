@@ -1,6 +1,6 @@
 {
   "name": "console-reader",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Simple console reader!",
   "main": "ConsoleReader.js",
   "scripts": {
